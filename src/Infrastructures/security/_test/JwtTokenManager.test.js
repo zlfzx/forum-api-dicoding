@@ -67,6 +67,45 @@ describe('JwtTokenManager', () => {
     });
   });
 
+  describe('verifyAccessToken function', () => {
+    it('should throw InvariantError when verification failed', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const refreshToken = await jwtTokenManager.createRefreshToken({ username: 'dicoding' });
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyAccessToken(refreshToken))
+        .rejects
+        .toThrow(InvariantError);
+    });
+
+    it('should not throw InvariantError when access token verified', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'dicoding' });
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyAccessToken(accessToken))
+        .resolves
+        .not.toThrow(InvariantError);
+    });
+  });
+
+  describe('getTokenFromHeader function', () => {
+    it('should get token correctly', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'dicoding' });
+      const headerAuthorization = `Bearer ${accessToken}`;
+
+      // Action
+      const token = await jwtTokenManager.getTokenFromHeader(headerAuthorization);
+
+      // Action & Assert
+      expect(token).toEqual(accessToken);
+    });
+  });
+
   describe('decodePayload function', () => {
     it('should decode payload correctly', async () => {
       // Arrange

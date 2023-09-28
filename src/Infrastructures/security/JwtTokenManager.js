@@ -24,6 +24,24 @@ class JwtTokenManager extends AuthenticationTokenManager {
     }
   }
 
+  async verifyAccessToken(token) {
+    try {
+      const artifacts = this._jwt.decode(token);
+      this._jwt.verify(artifacts, process.env.ACCESS_TOKEN_KEY);
+    } catch (error) {
+      throw new InvariantError('access token tidak valid');
+    }
+  }
+
+  async getTokenFromHeader(header) {
+    try {
+      const token = header.replace(/^Bearer\s/, '');
+      return token;
+    } catch (error) {
+      throw new InvariantError('access token tidak valid');
+    }
+  }
+
   async decodePayload(token) {
     const artifacts = this._jwt.decode(token);
     return artifacts.decoded.payload;

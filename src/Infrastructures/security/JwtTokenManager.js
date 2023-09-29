@@ -1,4 +1,5 @@
 const AuthenticationTokenManager = require('../../Applications/security/AuthenticationTokenManager');
+const AuthenticationError = require('../../Commons/exceptions/AuthenticationError');
 const InvariantError = require('../../Commons/exceptions/InvariantError');
 
 class JwtTokenManager extends AuthenticationTokenManager {
@@ -34,12 +35,12 @@ class JwtTokenManager extends AuthenticationTokenManager {
   }
 
   async getTokenFromHeader(header) {
-    try {
-      const token = header.replace(/^Bearer\s/, '');
-      return token;
-    } catch (error) {
-      throw new InvariantError('access token tidak valid');
+    if (!header) {
+      throw new AuthenticationError('Missing authentication');
     }
+
+    const token = header.replace(/^Bearer\s+/, '');
+    return token;
   }
 
   async decodePayload(token) {

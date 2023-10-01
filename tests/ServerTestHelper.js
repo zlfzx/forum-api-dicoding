@@ -15,7 +15,7 @@ const ServerTestHelper = {
         });
 
         const responseJSONUser = JSON.parse(responseUser.payload);
-        const { id: userId } = responseJSONUser.data.addedUser;
+        const { id: userID } = responseJSONUser.data.addedUser;
 
         const responseAuth = await server.inject({
             method: 'POST',
@@ -24,7 +24,7 @@ const ServerTestHelper = {
         });
 
         const { accessToken } = (JSON.parse(responseAuth.payload)).data;
-        return { accessToken, userId };
+        return { accessToken, userID };
     }
 };
 

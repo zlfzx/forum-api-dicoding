@@ -44,11 +44,11 @@ describe('AddThreadUseCase', () => {
         expect(mockAuthenticationTokenManager.getTokenFromHeader).toBeCalledWith(headerAuthorization);
         expect(mockAuthenticationTokenManager.verifyAccessToken).toBeCalledWith(accessToken);
         expect(mockAuthenticationTokenManager.decodePayload).toBeCalledWith(accessToken);
+        expect(addedThread).toStrictEqual(expectedAddedThread);
         expect(mockThreadRepository.addThread).toBeCalledWith(new AddThread({
             title: useCasePayload.title,
             body: useCasePayload.body,
             owner: expectedAddedThread.owner,
         }));
-        expect(addedThread).toEqual(expectedAddedThread);
     });
 });

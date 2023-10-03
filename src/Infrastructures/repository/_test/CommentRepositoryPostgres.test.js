@@ -231,5 +231,86 @@ describe('CommentRepositoryPostgres', () => {
                 expect(comments.is_delete).toEqual(true);
             });
         });
+
+        describe('getCommentsByThreadID function', () => {
+            it ('should return comments by thread id correctly', async () => {
+                // Arrange
+                // arrange for add user
+                await UsersTableTestHelper.addUser({
+                    id: 'user-123',
+                    username: 'usertest',
+                    password: 'secret',
+                    fullname: 'User Test'
+                });
+
+                // arrange for add thread
+                await ThreadsTableTestHelper.addThread({
+                    id: 'thread-123',
+                    title: 'title thread',
+                    body: 'body thread',
+                    owner: 'user-123',
+                });
+
+                // arrange for add comment
+                const comment = {
+                    id: 'comment-123',
+                    content: 'comment content',
+                    threadID: 'thread-123',
+                    owner: 'user-123',
+                }
+                const comment2 = {  
+                    id: 'comment-456',
+                    content: 'comment content 2',
+                    threadID: 'thread-123',
+                    owner: 'user-123',
+                }
+                await CommentsTableTestHelper.addComment(comment);
+                await CommentsTableTestHelper.addComment(comment2);
+
+                const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+                // Action
+                const comments = await commentRepositoryPostgres.getCommentsByThreadID('thread-123');
+
+                // Assert
+                expect(comments).toBeDefined();
+                expect(comments).toHaveLength(2);
+                expect(comments[0].id).toEqual(comment.id);
+                expect(comments[0].content).toEqual(comment.content);
+                expect(comments[0].username).toEqual('usertest');
+                expect(comments[1].id).toEqual(comment2.id);
+                expect(comments[1].content).toEqual(comment2.content);
+                expect(comments[1].username).toEqual('usertest');
+            });
+
+            it ('should return empty array when no comment in thread', async () => {
+                // Arrange
+                // arrange for add user
+                await UsersTableTestHelper.addUser({
+                    id: 'user-123',
+                    username: 'usertest',
+                    password: 'secret',
+                    fullname: 'User Test'
+                });
+
+                // arrange for add thread
+                await ThreadsTableTestHelper.addThread({
+                    id: 'thread-123',
+                    title: 'title thread',
+                    body: 'body thread',
+                    owner: 'user-123',
+                });
+
+                const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+                // Action
+                const comments = await commentRepositoryPostgres.getCommentsByThreadID('thread-123');
+
+                // Assert
+                expect(comments).toBeDefined();
+                expect(comments).toHaveLength(0);
+                expect(comments).toEqual([]);
+            });
+        });
     })
 });

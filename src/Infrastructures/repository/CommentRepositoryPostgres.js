@@ -83,6 +83,7 @@ class CommentRepositoryPostgres extends CommentRepository {
                 JOIN users u ON c.owner = u.id 
                 WHERE 
                     c.thread_id = $1
+                ORDER BY c.date ASC
             `,
             values: [threadID],
         };

@@ -60,6 +60,12 @@ describe('ThreadRepositoryPostgres', () => {
                     body: 'body thread',
                     owner: 'user-123',
                 }]);
+                expect(addedThread).toStrictEqual({
+                    id: 'thread-123',
+                    title: 'title thread',
+                    body: 'body thread',
+                    owner: 'user-123',
+                });
             });
         });
 

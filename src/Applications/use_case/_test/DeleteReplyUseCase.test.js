@@ -1,7 +1,6 @@
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
 const ReplyRepository = require("../../../Domains/replies/ReplyRepository");
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
-const AuthenticationTokenManager = require("../../security/AuthenticationTokenManager");
 const DeleteReplyUseCase = require("../DeleteReplyUseCase");
 
 describe('DeleteReplyUseCase', () => {
@@ -14,19 +13,13 @@ describe('DeleteReplyUseCase', () => {
         };
 
         const userID = 'user-123';
-        const accessToken = 'accessToken';
-        const headerAuthorization = `Bearer ${accessToken}`;
 
         // mock function
-        const mockAuthenticationTokenManager = new AuthenticationTokenManager();
         const mockThreadRepository = new ThreadRepository();
         const mockCommentRepository = new CommentRepository();
         const mockReplyRepository = new ReplyRepository();
 
         // mock implementation
-        mockAuthenticationTokenManager.getTokenFromHeader = jest.fn().mockImplementation(() => Promise.resolve(accessToken));
-        mockAuthenticationTokenManager.verifyAccessToken = jest.fn().mockImplementation(() => Promise.resolve());
-        mockAuthenticationTokenManager.decodePayload = jest.fn().mockImplementation(() => Promise.resolve({ id: userID }));
         mockThreadRepository.getThreadByID = jest.fn(() => Promise.resolve());
         mockCommentRepository.checkCommentIsExist = jest.fn(() => Promise.resolve());
         mockReplyRepository.checkReplyIsExist = jest.fn(() => Promise.resolve());
@@ -38,16 +31,12 @@ describe('DeleteReplyUseCase', () => {
             replyRepository: mockReplyRepository,
             commentRepository: mockCommentRepository,
             threadRepository: mockThreadRepository,
-            authenticationTokenManager: mockAuthenticationTokenManager,
         });
 
         // Action
-        await deleteReplyUseCase.execute(useCaseParams, headerAuthorization);
+        await deleteReplyUseCase.execute(useCaseParams, userID);
 
         // Assert
-        expect(mockAuthenticationTokenManager.getTokenFromHeader).toHaveBeenCalledWith(headerAuthorization);
-        expect(mockAuthenticationTokenManager.verifyAccessToken).toHaveBeenCalledWith(accessToken);
-        expect(mockAuthenticationTokenManager.decodePayload).toHaveBeenCalledWith(accessToken);
         expect(mockThreadRepository.getThreadByID).toHaveBeenCalledWith(useCaseParams.threadID);
         expect(mockCommentRepository.checkCommentIsExist).toHaveBeenCalledWith(useCaseParams.commentID);
         expect(mockReplyRepository.checkReplyIsExist).toHaveBeenCalledWith(useCaseParams.replyID);

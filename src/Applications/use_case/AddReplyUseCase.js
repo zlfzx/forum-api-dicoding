@@ -8,13 +8,13 @@ class AddReplyUseCase {
         this._authenticationTokenManager = authenticationTokenManager;
     }
 
-    async execute(useCasePayload, useCaseParams, headerAuthorization) {
+    async execute(useCasePayload, useCaseParams, userID) {
         const { threadID, commentID } = useCaseParams;
         const { content } = useCasePayload;
 
-        const accessToken = await this._authenticationTokenManager.getTokenFromHeader(headerAuthorization);
-        await this._authenticationTokenManager.verifyAccessToken(accessToken);
-        const { id: owner } = await this._authenticationTokenManager.decodePayload(accessToken);
+        // const accessToken = await this._authenticationTokenManager.getTokenFromHeader(headerAuthorization);
+        // await this._authenticationTokenManager.verifyAccessToken(accessToken);
+        // const { id: owner } = await this._authenticationTokenManager.decodePayload(accessToken);
 
         await this._threadRepository.getThreadByID(threadID);
         await this._commentRepository.checkCommentIsExist(commentID);
@@ -23,7 +23,7 @@ class AddReplyUseCase {
             threadID: threadID,
             commentID: commentID,
             content: content,
-            owner: owner,
+            owner: userID,
         }));
     }
 }

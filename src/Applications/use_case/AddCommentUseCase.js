@@ -1,21 +1,17 @@
 const AddComment = require("../../Domains/comments/entities/AddComment");
 
 class AddCommentUseCase {
-    constructor({ threadRepository, commentRepository, authenticationTokenManager }) {
+    constructor({ threadRepository, commentRepository }) {
         this._threadRepository = threadRepository;
         this._commentRepository = commentRepository;
-        this._authenticationTokenManager = authenticationTokenManager;
     }
 
-    async execute(useCasePayload, useCaseParams, headerAuth) {
-        const accessToken = await this._authenticationTokenManager.getTokenFromHeader(headerAuth);
-        await this._authenticationTokenManager.verifyAccessToken(accessToken);
-        const { id: owner } = await this._authenticationTokenManager.decodePayload(accessToken);
+    async execute(useCasePayload, useCaseParams, userID) {
         await this._threadRepository.getThreadByID(useCaseParams.threadID);
         return await this._commentRepository.addComment(new AddComment({
             ...useCasePayload,
             threadID: useCaseParams.threadID,
-            owner: owner,
+            owner: userID,
         }));
     }
 }

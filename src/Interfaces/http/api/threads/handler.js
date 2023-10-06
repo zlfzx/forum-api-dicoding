@@ -1,3 +1,4 @@
+const AuthenticationTokenManager = require("../../../../Applications/security/AuthenticationTokenManager");
 const AddThreadUseCase = require("../../../../Applications/use_case/AddThreadUseCase");
 const DetailThreadUseCase = require("../../../../Applications/use_case/DetailThreadUseCase");
 
@@ -9,11 +10,14 @@ class ThreadHandler {
     }
 
     async postThreadHandler(request, h) {
-
         const headerAuthorization = request.headers.authorization;
+        
+        const authenticationTokenManager = this._container.getInstance(AuthenticationTokenManager.name);
+        const accessToken = await authenticationTokenManager.getTokenFromHeader(headerAuthorization);
+        await authenticationTokenManager.verifyAccessToken(accessToken);
+        const { id: userID } = await authenticationTokenManager.decodePayload(accessToken);
 
-        const addThreadUseCase = this._container.getInstance(AddThreadUseCase.name);
-        const addedThread = await addThreadUseCase.execute(request.payload, headerAuthorization);
+        const addedThread = await this._container.getInstance(AddThreadUseCase.name).execute(request.payload, userID);
 
         const response = h.response({
             status: 'success',
@@ -27,8 +31,7 @@ class ThreadHandler {
     }
 
     async getThreadByIDHandler(request, h) {
-        const detailThreadUseCase = this._container.getInstance(DetailThreadUseCase.name);
-        const thread = await detailThreadUseCase.execute(request.params);
+        const thread = await this._container.getInstance(DetailThreadUseCase.name).execute(request.params);
 
         return h.response({
             status: 'success',

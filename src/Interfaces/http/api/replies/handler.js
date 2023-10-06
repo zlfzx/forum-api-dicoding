@@ -1,3 +1,7 @@
+const AuthenticationTokenManager = require("../../../../Applications/security/AuthenticationTokenManager");
+const AddReplyUseCase = require("../../../../Applications/use_case/AddReplyUseCase");
+const DeleteReplyUseCase = require("../../../../Applications/use_case/DeleteReplyUseCase");
+
 class ReplyHandler {
     constructor(container) {
         this._container = container;
@@ -7,8 +11,13 @@ class ReplyHandler {
 
     async postReplyHandler(request, h) {
         const headerAuthorization = request.headers.authorization;
-        const addReplyUseCase = this._container.getInstance('AddReplyUseCase');
-        const addedReply = await addReplyUseCase.execute(request.payload, request.params, headerAuthorization);
+
+        const authenticationTokenManager = this._container.getInstance(AuthenticationTokenManager.name);
+        const accessToken = await authenticationTokenManager.getTokenFromHeader(headerAuthorization);
+        await authenticationTokenManager.verifyAccessToken(accessToken);
+        const { id: userID } = await authenticationTokenManager.decodePayload(accessToken);
+
+        const addedReply = await this._container.getInstance(AddReplyUseCase.name).execute(request.payload, request.params, userID);
 
         const response = h.response({
             status: 'success',
@@ -22,8 +31,13 @@ class ReplyHandler {
 
     async deleteReplyHandler(request, h) {
         const headerAuthorization = request.headers.authorization;
-        const deleteReplyUseCase = this._container.getInstance('DeleteReplyUseCase');
-        await deleteReplyUseCase.execute(request.params, headerAuthorization);
+
+        const authenticationTokenManager = this._container.getInstance(AuthenticationTokenManager.name);
+        const accessToken = await authenticationTokenManager.getTokenFromHeader(headerAuthorization);
+        await authenticationTokenManager.verifyAccessToken(accessToken);
+        const { id: userID } = await authenticationTokenManager.decodePayload(accessToken);
+
+        await this._container.getInstance(DeleteReplyUseCase.name).execute(request.params, userID);
 
         const response = h.response({
             status: 'success',

@@ -12,13 +12,11 @@ class AddCommentUseCase {
         await this._authenticationTokenManager.verifyAccessToken(accessToken);
         const { id: owner } = await this._authenticationTokenManager.decodePayload(accessToken);
         await this._threadRepository.getThreadByID(useCaseParams.threadID);
-
-        const addedComment = await this._commentRepository.addComment(new AddComment({
+        return await this._commentRepository.addComment(new AddComment({
             ...useCasePayload,
             threadID: useCaseParams.threadID,
             owner: owner,
         }));
-        return addedComment;
     }
 }
 

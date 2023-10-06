@@ -24,9 +24,9 @@ const CommentsTableTestHelper = {
       values: [id],
     };
 
-    const result = await pool.query(query);
+    const { rows } = await pool.query(query);
 
-    return result.rows[0];
+    return rows[0];
   },
 
   async cleanTable() {

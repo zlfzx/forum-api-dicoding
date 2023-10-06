@@ -25,31 +25,31 @@ class CommentRepositoryPostgres extends CommentRepository {
         return new AddedComment({ ...rows[0] });
     }
 
-    async checkCommentIsExist(commentID) {
+    async checkCommentIsExist(id) {
         const query = {
             text: 'SELECT id FROM comments WHERE id = $1',
-            values: [commentID],
+            values: [id],
         };
 
         const { rows } = await this._pool.query(query);
 
         if (!rows.length) {
-            throw new NotFoundError('comment tidak ditemukan');
+            throw new NotFoundError('komentar tidak ditemukan');
         }
 
         return rows[0].id;
     }
 
-    async verifyCommentOwner(commentID, owner) {
+    async verifyCommentOwner(id, owner) {
         const query = {
             text: 'SELECT owner FROM comments WHERE id = $1',
-            values: [commentID],
+            values: [id],
         };
 
         const { rows } = await this._pool.query(query);
 
         if (!rows.length) {
-            throw new NotFoundError('comment tidak ditemukan');
+            throw new NotFoundError('komentar tidak ditemukan');
         }
 
         if (rows[0].owner !== owner) {
@@ -57,16 +57,16 @@ class CommentRepositoryPostgres extends CommentRepository {
         }
     }
 
-    async deleteCommentByID(commentID) {
+    async deleteCommentByID(id) {
         const query = {
             text: 'UPDATE comments SET is_delete = true WHERE id = $1 RETURNING id',
-            values: [commentID],
+            values: [id],
         };
 
         const { rows } = await this._pool.query(query);
         
         if (!rows.length) {
-            throw new NotFoundError('comment tidak ditemukan');
+            throw new NotFoundError('komentar tidak ditemukan');
         }
     }
 
@@ -83,6 +83,7 @@ class CommentRepositoryPostgres extends CommentRepository {
                 JOIN users u ON c.owner = u.id 
                 WHERE 
                     c.thread_id = $1
+                    AND c.comment_id IS NULL
                 ORDER BY c.date ASC
             `,
             values: [threadID],

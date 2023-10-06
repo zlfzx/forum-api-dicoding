@@ -10,12 +10,11 @@ class AddThreadUseCase {
         const accessToken = await this._authenticationTokenManager.getTokenFromHeader(headerAuth);
         await this._authenticationTokenManager.verifyAccessToken(accessToken);
         const { id } = await this._authenticationTokenManager.decodePayload(accessToken);
-        const addedThread = await this._threadRepository.addThread(new AddThread({
+
+        return await this._threadRepository.addThread(new AddThread({
             ...useCasePayload,
             owner: id,
         }));
-
-        return addedThread;
     }
 }
 

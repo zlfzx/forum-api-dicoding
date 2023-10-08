@@ -21,13 +21,13 @@ const RepliesTestHelper = {
 
     async findReplyByID(id) {
         const query = {
-            text: 'SELECT * FROM comments WHERE id = $1',
+            text: 'SELECT id, thread_id, comment_id, owner, content, is_delete FROM comments WHERE id = $1',
             values: [id],
         }
 
         const { rows } = await pool.query(query)
 
-        return rows[0]
+        return rows
     },
 
     async cleanTable() {

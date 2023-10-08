@@ -5,6 +5,7 @@ const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
 const NotFoundError = require("../../../Commons/exceptions/NotFoundError");
 const AddReply = require("../../../Domains/replies/entities/AddReply");
 const AddedReply = require("../../../Domains/replies/entities/AddedReply");
+const DetailReply = require("../../../Domains/replies/entities/DetailReply");
 const pool = require("../../database/postgres/pool");
 const ReplyRepositoryPostgres = require("../ReplyRepositoryPostgres");
 
@@ -70,11 +71,26 @@ describe('ReplyRepositoryPostgres', () => {
 
                 // Action
                 const addedReply = await replyRepositoryPostgres.addReply(addReply);
+                const replies = await RepliesTestHelper.findReplyByID(addedReply.id);
 
                 // Assert
-                const replies = await RepliesTestHelper.findReplyByID(addedReply.id);
+                expect(addedReply).toStrictEqual(new AddedReply({
+                    id: 'reply-123',
+                    threadID: threadID,
+                    commentID: commentID,
+                    content: 'reply content',
+                    owner: userID,
+                }));
                 expect(replies).toBeDefined();
-                expect(addedReply).toStrictEqual(new AddedReply(replies));
+                expect(replies).toHaveLength(1);
+                expect(replies).toStrictEqual([{
+                    id: 'reply-123',
+                    thread_id: threadID,
+                    comment_id: commentID,
+                    content: 'reply content',
+                    owner: userID,
+                    is_delete: false,
+                }]);
             });
         });
 
@@ -82,7 +98,6 @@ describe('ReplyRepositoryPostgres', () => {
             it ('should return replies comment by thread id correctly', async () => {
                 // Arrange
                 // arrange for add reply
-                const fakeIDGenerator = () => '123';
                 const userID = 'user-123';
                 const threadID = 'thread-123';
                 const commentID = 'comment-123';
@@ -107,27 +122,41 @@ describe('ReplyRepositoryPostgres', () => {
                     threadID: threadID,
                 });
 
-                const addReply = new AddReply({
+                const addReply = {
+                    id: 'reply-123',
                     threadID: threadID,
                     commentID: commentID,
                     content: 'reply content',
                     owner: userID,
-                });
+                    date: '2023',
+                };
 
+                await RepliesTestHelper.addReply(addReply);
 
-                const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, fakeIDGenerator);
-                await replyRepositoryPostgres.addReply(addReply);
+                const expectedReply = [
+                    new DetailReply({
+                        id: 'reply-123',
+                        comment_id: commentID,
+                        username: 'usertest',
+                        date: '2023',
+                        content: 'reply content',
+                        is_delete: false,
+                    })
+                ]
+
+                const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
                 // Action
                 const replies = await replyRepositoryPostgres.getReplyCommentByThreadID('thread-123');
 
                 // Assert
                 expect(replies).toHaveLength(1);
-                expect(replies[0].id).toBeDefined();
-                expect(replies[0].comment_id).toBeDefined();
-                expect(replies[0].username).toBeDefined();
-                expect(replies[0].date).toBeDefined();
-                expect(replies[0].content).toBeDefined();
+                expect(replies).toStrictEqual(expectedReply);
+                expect(replies[0].id).toEqual(addReply.id);
+                expect(replies[0].comment_id).toEqual(addReply.commentID);
+                expect(replies[0].username).toEqual('usertest');
+                expect(replies[0].date).toEqual(addReply.date);
+                expect(replies[0].content).toEqual(addReply.content);
             });
 
             it ('should return empty array if no replies comment by thread id', async () => {
@@ -323,7 +352,8 @@ describe('ReplyRepositoryPostgres', () => {
                 // Assert
                 const replies = await RepliesTestHelper.findReplyByID('reply-123');
                 expect(replies).toBeDefined();
-                expect(replies.is_delete).toEqual(true);
+                expect(replies).toHaveLength(1);
+                expect(replies[0].is_delete).toEqual(true);
             });
         });
     });

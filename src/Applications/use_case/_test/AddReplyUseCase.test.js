@@ -15,22 +15,21 @@ describe('AddReplyUseCase', () => {
         const useCasePayload = {
             content: 'reply content',
         };
+        const userID = 'user-123';
 
-        const expectedAddedReply = new AddedReply({
+        const mockAddedReply = new AddedReply({
             id: 'reply-123',
             content: useCasePayload.content,
-            owner: 'user-123',
+            owner: userID,
         });
-
-        const userID = 'user-123';
 
         const mockReplyRepository = new ReplyRepository();
         const mockThreadRepository = new ThreadRepository();
         const mockCommentRepository = new CommentRepository();
         
         // mocking
-        mockReplyRepository.addReply = jest.fn().mockImplementation(() => Promise.resolve(expectedAddedReply))
-        mockThreadRepository.getThreadByID = jest.fn().mockImplementation(() => Promise.resolve());
+        mockReplyRepository.addReply = jest.fn().mockImplementation(() => Promise.resolve(mockAddedReply))
+        mockThreadRepository.checkThreadIsExist = jest.fn().mockImplementation(() => Promise.resolve());
         mockCommentRepository.checkCommentIsExist = jest.fn().mockImplementation(() => Promise.resolve());
 
         // instance of use case
@@ -44,12 +43,18 @@ describe('AddReplyUseCase', () => {
         const addedReply = await addReplyUseCase.execute(useCasePayload, useCaseParams, userID);
 
         // assert
-        expect(addedReply).toStrictEqual(expectedAddedReply);
+        expect(mockThreadRepository.checkThreadIsExist).toBeCalledWith(useCaseParams.threadID);
+        expect(mockCommentRepository.checkCommentIsExist).toBeCalledWith(useCaseParams.commentID);
         expect(mockReplyRepository.addReply).toBeCalledWith(new AddReply({
             threadID: useCaseParams.threadID,
             commentID: useCaseParams.commentID,
             content: useCasePayload.content,
-            owner: expectedAddedReply.owner,
+            owner: userID,
+        }));
+        expect(addedReply).toStrictEqual(new AddedReply({
+            id: 'reply-123',
+            content: useCasePayload.content,
+            owner: userID,
         }));
     });
 });

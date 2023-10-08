@@ -7,7 +7,7 @@ class AddCommentUseCase {
     }
 
     async execute(useCasePayload, useCaseParams, userID) {
-        await this._threadRepository.getThreadByID(useCaseParams.threadID);
+        await this._threadRepository.checkThreadIsExist(useCaseParams.threadID);
         return await this._commentRepository.addComment(new AddComment({
             ...useCasePayload,
             threadID: useCaseParams.threadID,

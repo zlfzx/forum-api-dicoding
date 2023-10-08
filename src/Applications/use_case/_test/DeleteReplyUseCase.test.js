@@ -20,7 +20,7 @@ describe('DeleteReplyUseCase', () => {
         const mockReplyRepository = new ReplyRepository();
 
         // mock implementation
-        mockThreadRepository.getThreadByID = jest.fn(() => Promise.resolve());
+        mockThreadRepository.checkThreadIsExist = jest.fn(() => Promise.resolve());
         mockCommentRepository.checkCommentIsExist = jest.fn(() => Promise.resolve());
         mockReplyRepository.checkReplyIsExist = jest.fn(() => Promise.resolve());
         mockReplyRepository.verifyReplyOwner = jest.fn(() => Promise.resolve());
@@ -37,7 +37,7 @@ describe('DeleteReplyUseCase', () => {
         await deleteReplyUseCase.execute(useCaseParams, userID);
 
         // Assert
-        expect(mockThreadRepository.getThreadByID).toHaveBeenCalledWith(useCaseParams.threadID);
+        expect(mockThreadRepository.checkThreadIsExist).toHaveBeenCalledWith(useCaseParams.threadID);
         expect(mockCommentRepository.checkCommentIsExist).toHaveBeenCalledWith(useCaseParams.commentID);
         expect(mockReplyRepository.checkReplyIsExist).toHaveBeenCalledWith(useCaseParams.replyID);
         expect(mockReplyRepository.verifyReplyOwner).toHaveBeenCalledWith(useCaseParams.replyID, userID);

@@ -17,7 +17,7 @@ describe('DeleteCommentUseCase', () => {
         const mockCommentRepository = new CommentRepository();
 
         // mock implementation
-        mockThreadRepository.getThreadByID = jest.fn(() => Promise.resolve());
+        mockThreadRepository.checkThreadIsExist = jest.fn(() => Promise.resolve());
         mockCommentRepository.checkCommentIsExist = jest.fn(() => Promise.resolve());
         mockCommentRepository.verifyCommentOwner = jest.fn(() => Promise.resolve());
         mockCommentRepository.deleteCommentByID = jest.fn(() => Promise.resolve());
@@ -32,7 +32,7 @@ describe('DeleteCommentUseCase', () => {
         await deleteCommentUseCase.execute(useCaseParams, userID);
 
         // Assert
-        expect(mockThreadRepository.getThreadByID).toHaveBeenCalledWith(useCaseParams.threadID);
+        expect(mockThreadRepository.checkThreadIsExist).toHaveBeenCalledWith(useCaseParams.threadID);
         expect(mockCommentRepository.checkCommentIsExist).toHaveBeenCalledWith(useCaseParams.commentID);
         expect(mockCommentRepository.verifyCommentOwner).toHaveBeenCalledWith(useCaseParams.commentID, userID);
         expect(mockCommentRepository.deleteCommentByID).toHaveBeenCalledWith(useCaseParams.commentID);

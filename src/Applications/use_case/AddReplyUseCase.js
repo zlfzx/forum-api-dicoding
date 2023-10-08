@@ -12,11 +12,7 @@ class AddReplyUseCase {
         const { threadID, commentID } = useCaseParams;
         const { content } = useCasePayload;
 
-        // const accessToken = await this._authenticationTokenManager.getTokenFromHeader(headerAuthorization);
-        // await this._authenticationTokenManager.verifyAccessToken(accessToken);
-        // const { id: owner } = await this._authenticationTokenManager.decodePayload(accessToken);
-
-        await this._threadRepository.getThreadByID(threadID);
+        await this._threadRepository.checkThreadIsExist(threadID);
         await this._commentRepository.checkCommentIsExist(commentID);
 
         return await this._replyRepository.addReply(new AddReply({

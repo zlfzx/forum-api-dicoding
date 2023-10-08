@@ -5,6 +5,7 @@ const AuthorizationError = require("../../../Commons/exceptions/AuthorizationErr
 const NotFoundError = require("../../../Commons/exceptions/NotFoundError");
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
 const AddedComment = require("../../../Domains/comments/entities/AddedComment");
+const DetailComment = require("../../../Domains/comments/entities/DetailComment");
 const pool = require("../../database/postgres/pool");
 const CommentRepositoryPostgres = require("../CommentRepositoryPostgres");
 
@@ -62,15 +63,23 @@ describe('CommentRepositoryPostgres', () => {
 
                 // action
                 const addedComment = await commentRepositoryPostgres.addComment(addComment)
-                const comments = await CommentsTableTestHelper.findCommentByID(addedComment.id);
+                const comment = await CommentsTableTestHelper.findCommentByID(addedComment.id);
 
                 // assert
-                expect(comments).toBeDefined();
                 expect(addedComment).toStrictEqual(new AddedComment({
                     id: 'comment-123',
                     content: addComment.content,
                     owner: addComment.owner,
                 }));
+                expect(comment).toBeDefined();
+                expect(comment).toHaveLength(1);
+                expect(comment).toStrictEqual([{
+                    id: 'comment-123',
+                    thread_id: addComment.threadID,
+                    owner: addComment.owner,
+                    content: addComment.content,
+                    is_delete: false,
+                }]);
             });
         });
 
@@ -225,10 +234,11 @@ describe('CommentRepositoryPostgres', () => {
                 await commentRepositoryPostgres.deleteCommentByID('comment-123');
 
                 // Assert
-                const comments = await CommentsTableTestHelper.findCommentByID('comment-123');
+                const comment = await CommentsTableTestHelper.findCommentByID('comment-123');
 
-                expect(comments).toBeDefined();
-                expect(comments.is_delete).toEqual(true);
+                expect(comment).toBeDefined();
+                expect(comment).toHaveLength(1);
+                expect(comment[0].is_delete).toEqual(true);
             });
         });
 
@@ -264,16 +274,35 @@ describe('CommentRepositoryPostgres', () => {
                     threadID: 'thread-123',
                     owner: 'user-123',
                 }
+                
                 await CommentsTableTestHelper.addComment(comment);
                 await CommentsTableTestHelper.addComment(comment2);
+                
+                const expectedComment = [
+                    new DetailComment({
+                        id: comment.id,
+                        username: 'usertest',
+                        date: '2023',
+                        content: comment.content,
+                        is_delete: false,
+                    }),
+                    new DetailComment({
+                        id: comment2.id,
+                        username: 'usertest',
+                        date: '2023',
+                        content: comment2.content,
+                        is_delete: false,
+                    }),
+                ];
 
                 const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
                 // Action
                 const comments = await commentRepositoryPostgres.getCommentsByThreadID('thread-123');
-
+                
                 // Assert
                 expect(comments).toBeDefined();
+                expect(comments).toStrictEqual(expectedComment);
                 expect(comments).toHaveLength(2);
                 expect(comments[0].id).toEqual(comment.id);
                 expect(comments[0].content).toEqual(comment.content);

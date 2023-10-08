@@ -10,24 +10,23 @@ describe('AddCommentUseCase', () => {
         const useCasePayload = {
             content: 'comment content',
         };
-
         const useCaseParams = {
             threadID: 'thread-123',
         };
-
         const userID = 'user-123';
-        const expectedAddedComment = new AddedComment({
+
+        const mockAddedComment = new AddedComment({
             id: 'comment-123',
-            content: 'comment content',
-            owner: 'user-123',
+            content: useCasePayload.content,
+            owner: userID,
         });
 
-        const mockCommentRepository = new CommentRepository();
         const mockThreadRepository = new ThreadRepository();
+        const mockCommentRepository = new CommentRepository();
 
         // mock
-        mockCommentRepository.addComment = jest.fn().mockImplementation(() => Promise.resolve(expectedAddedComment));
-        mockThreadRepository.getThreadByID = jest.fn().mockImplementation(() => Promise.resolve());
+        mockThreadRepository.checkThreadIsExist = jest.fn().mockImplementation(() => Promise.resolve());
+        mockCommentRepository.addComment = jest.fn().mockImplementation(() => Promise.resolve(mockAddedComment));
 
         // instance of use case
         const addCommentUseCase = new AddCommentUseCase({
@@ -39,12 +38,16 @@ describe('AddCommentUseCase', () => {
         const addedComment = await addCommentUseCase.execute(useCasePayload, useCaseParams, userID);
         
         // Assert
-        expect(mockThreadRepository.getThreadByID).toBeCalledWith(useCaseParams.threadID);
-        expect(addedComment).toStrictEqual(expectedAddedComment);
+        expect(mockThreadRepository.checkThreadIsExist).toBeCalledWith(useCaseParams.threadID);
         expect(mockCommentRepository.addComment).toBeCalledWith(new AddComment({
             content: useCasePayload.content,
             threadID: useCaseParams.threadID,
-            owner: expectedAddedComment.owner,
+            owner: userID,
+        }));
+        expect(addedComment).toStrictEqual(new AddedComment({
+            id: 'comment-123',
+            content: useCasePayload.content,
+            owner: userID,
         }));
     });
 });

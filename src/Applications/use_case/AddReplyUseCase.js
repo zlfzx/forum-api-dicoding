@@ -16,7 +16,6 @@ class AddReplyUseCase {
         await this._commentRepository.checkCommentIsExist(commentID);
 
         return await this._replyRepository.addReply(new AddReply({
-            threadID: threadID,
             commentID: commentID,
             content: content,
             owner: userID,

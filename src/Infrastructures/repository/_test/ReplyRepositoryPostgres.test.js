@@ -1,5 +1,5 @@
 const CommentsTableTestHelper = require("../../../../tests/CommentsTableTestHelper");
-const RepliesTestHelper = require("../../../../tests/RepliesTestHelper");
+const RepliesTableTestHelper = require("../../../../tests/RepliesTableTestHelper");
 const ThreadsTableTestHelper = require("../../../../tests/ThreadsTableTestHelper");
 const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
 const NotFoundError = require("../../../Commons/exceptions/NotFoundError");
@@ -20,7 +20,7 @@ describe('ReplyRepositoryPostgres', () => {
     
     describe('behavior test', () => {
         afterEach(async () => {
-            await RepliesTestHelper.cleanTable();
+            await RepliesTableTestHelper.cleanTable();
             await UsersTableTestHelper.cleanTable();
             await ThreadsTableTestHelper.cleanTable();
             await CommentsTableTestHelper.cleanTable();
@@ -60,7 +60,6 @@ describe('ReplyRepositoryPostgres', () => {
                 });
 
                 const addReply = new AddReply({
-                    threadID: threadID,
                     commentID: commentID,
                     content: 'reply content',
                     owner: userID,
@@ -71,12 +70,11 @@ describe('ReplyRepositoryPostgres', () => {
 
                 // Action
                 const addedReply = await replyRepositoryPostgres.addReply(addReply);
-                const replies = await RepliesTestHelper.findReplyByID(addedReply.id);
+                const replies = await RepliesTableTestHelper.findReplyByID(addedReply.id);
 
                 // Assert
                 expect(addedReply).toStrictEqual(new AddedReply({
                     id: 'reply-123',
-                    threadID: threadID,
                     commentID: commentID,
                     content: 'reply content',
                     owner: userID,
@@ -85,7 +83,6 @@ describe('ReplyRepositoryPostgres', () => {
                 expect(replies).toHaveLength(1);
                 expect(replies).toStrictEqual([{
                     id: 'reply-123',
-                    thread_id: threadID,
                     comment_id: commentID,
                     content: 'reply content',
                     owner: userID,
@@ -124,14 +121,13 @@ describe('ReplyRepositoryPostgres', () => {
 
                 const addReply = {
                     id: 'reply-123',
-                    threadID: threadID,
                     commentID: commentID,
                     content: 'reply content',
                     owner: userID,
                     date: '2023',
                 };
 
-                await RepliesTestHelper.addReply(addReply);
+                await RepliesTableTestHelper.addReply(addReply);
 
                 const expectedReply = [
                     new DetailReply({
@@ -210,9 +206,8 @@ describe('ReplyRepositoryPostgres', () => {
                     threadID: threadID,
                 });
 
-                await RepliesTestHelper.addReply({
+                await RepliesTableTestHelper.addReply({
                     id: 'reply-123',
-                    thread_id: threadID,
                     comment_id: commentID,
                     content: 'reply content',
                     owner: userID,
@@ -256,11 +251,10 @@ describe('ReplyRepositoryPostgres', () => {
                     threadID: 'thread-123',
                 });
 
-                await RepliesTestHelper.addReply({
+                await RepliesTableTestHelper.addReply({
                     id: 'reply-123',
                     owner: 'user-123',
                     comment_id: 'comment-123',
-                    thread_id: 'thread-123',
                     content: 'reply content',
                 });
 
@@ -292,11 +286,10 @@ describe('ReplyRepositoryPostgres', () => {
                     threadID: 'thread-123',
                 });
 
-                await RepliesTestHelper.addReply({
+                await RepliesTableTestHelper.addReply({
                     id: 'reply-123',
                     owner: 'user-123',
                     comment_id: 'comment-123',
-                    thread_id: 'thread-123',
                     content: 'reply content',
                 });
 
@@ -336,9 +329,8 @@ describe('ReplyRepositoryPostgres', () => {
                     threadID: threadID,
                 });
 
-                await RepliesTestHelper.addReply({
+                await RepliesTableTestHelper.addReply({
                     id: 'reply-123',
-                    thread_id: threadID,
                     comment_id: commentID,
                     content: 'reply content',
                     owner: userID,
@@ -350,7 +342,7 @@ describe('ReplyRepositoryPostgres', () => {
                 await replyRepositoryPostgres.deleteReplyByID('reply-123');
 
                 // Assert
-                const replies = await RepliesTestHelper.findReplyByID('reply-123');
+                const replies = await RepliesTableTestHelper.findReplyByID('reply-123');
                 expect(replies).toBeDefined();
                 expect(replies).toHaveLength(1);
                 expect(replies[0].is_delete).toEqual(true);

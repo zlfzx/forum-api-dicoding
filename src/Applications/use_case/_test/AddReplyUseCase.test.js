@@ -46,7 +46,6 @@ describe('AddReplyUseCase', () => {
         expect(mockThreadRepository.checkThreadIsExist).toBeCalledWith(useCaseParams.threadID);
         expect(mockCommentRepository.checkCommentIsExist).toBeCalledWith(useCaseParams.commentID);
         expect(mockReplyRepository.addReply).toBeCalledWith(new AddReply({
-            threadID: useCaseParams.threadID,
             commentID: useCaseParams.commentID,
             content: useCasePayload.content,
             owner: userID,

@@ -14,7 +14,6 @@ describe('AddReply entities', () => {
     it('should throw error when payload not meet data type specification', () => {
         // Arrange
         const payload = {
-            threadID: 123,
             commentID: 123,
             content: {},
             owner: [],
@@ -27,7 +26,6 @@ describe('AddReply entities', () => {
     it('should create addReply object correctly', () => {
         // Arrange
         const payload = {
-            threadID: 'thread-123',
             commentID: 'comment-123',
             content: 'reply content',
             owner: 'user-123',

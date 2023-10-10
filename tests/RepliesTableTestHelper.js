@@ -1,19 +1,18 @@
 /* istanbul ignore file */
 const pool = require("../src/Infrastructures/database/postgres/pool")
 
-const RepliesTestHelper = {
+const RepliesTableTestHelper = {
     async addReply({
         id = 'reply-123',
         content = 'reply content',
         owner = 'user-123',
-        thread_id = 'thread-123',
         comment_id = 'comment-123',
         is_delete = false,
         date = new Date().toISOString(),
     }) {
         const query = {
-            text: 'INSERT INTO comments VALUES($1, $2, $3, $4, $5, $6, $7)',
-            values: [id, thread_id, owner, content, is_delete, date, comment_id],
+            text: 'INSERT INTO replies(id, comment_id, owner, content, is_delete, date) VALUES($1, $2, $3, $4, $5, $6)',
+            values: [id, comment_id, owner, content, is_delete, date],
         }
 
         await pool.query(query)
@@ -21,7 +20,7 @@ const RepliesTestHelper = {
 
     async findReplyByID(id) {
         const query = {
-            text: 'SELECT id, thread_id, comment_id, owner, content, is_delete FROM comments WHERE id = $1',
+            text: 'SELECT id, comment_id, owner, content, is_delete FROM replies WHERE id = $1',
             values: [id],
         }
 
@@ -31,8 +30,8 @@ const RepliesTestHelper = {
     },
 
     async cleanTable() {
-        await pool.query('DELETE FROM comments WHERE comment_id IS NOT NULL')
+        await pool.query('DELETE FROM replies WHERE 1=1')
     },
 }
 
-module.exports = RepliesTestHelper
+module.exports = RepliesTableTestHelper

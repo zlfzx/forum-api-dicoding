@@ -1,5 +1,5 @@
 const CommentsTableTestHelper = require("../../../../tests/CommentsTableTestHelper");
-const RepliesTestHelper = require("../../../../tests/RepliesTestHelper");
+const RepliesTableTestHelper = require("../../../../tests/RepliesTableTestHelper");
 const ServerTestHelper = require("../../../../tests/ServerTestHelper");
 const ThreadsTableTestHelper = require("../../../../tests/ThreadsTableTestHelper");
 const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
@@ -9,7 +9,7 @@ const createServer = require("../createServer");
 
 describe('replies API', () => {
     afterEach(async () => {
-        await RepliesTestHelper.cleanTable();
+        await RepliesTableTestHelper.cleanTable();
         await UsersTableTestHelper.cleanTable();
         await ThreadsTableTestHelper.cleanTable();
         await CommentsTableTestHelper.cleanTable();
@@ -45,9 +45,7 @@ describe('replies API', () => {
         it ('should response 400 when request payload not contain needed property', async () => {
             // Arrange
             const threadID = 'thread-123';
-            const requestPayload = {
-                // content: 'reply content',
-            };
+            const requestPayload = {};
 
             const server = await createServer(container);
 
@@ -362,7 +360,7 @@ describe('replies API', () => {
                 threadID: 'thread-123',
             });
 
-            await RepliesTestHelper.addReply({
+            await RepliesTableTestHelper.addReply({
                 id: 'reply-123',
                 content: 'reply content',
                 owner: otherUserID,
@@ -405,7 +403,7 @@ describe('replies API', () => {
                 threadID: 'thread-123',
             });
 
-            await RepliesTestHelper.addReply({
+            await RepliesTableTestHelper.addReply({
                 id: 'reply-123',
                 content: 'reply content',
                 owner: userID,

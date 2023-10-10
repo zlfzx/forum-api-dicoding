@@ -12,13 +12,12 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     }
     
     async addReply(addReply) {
-        const { threadID, owner, content, commentID } = addReply;
+        const { commentID, owner, content } = addReply;
         const id = `reply-${this._idGenerator()}`;
-        const is_delete = false;
         const date = new Date().toISOString();
         const query = {
-            text: 'INSERT INTO comments VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id, content, owner',
-            values: [id, threadID, owner, content, is_delete, date, commentID ],
+            text: 'INSERT INTO replies(id, comment_id, owner, content, date) VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner',
+            values: [id, commentID, owner, content, date],
         };
 
         const { rows } = await this._pool.query(query);
@@ -29,18 +28,18 @@ class ReplyRepositoryPostgres extends ReplyRepository {
         const query = {
             text: `
                 SELECT 
-                    c.id,
-                    c.comment_id,
-                    c.content,
-                    c.date,
+                    r.id,
+                    r.comment_id,
+                    r.content,
+                    r.date,
                     u.username,
-                    c.is_delete
-                FROM comments c
-                JOIN users u ON c.owner = u.id 
+                    r.is_delete
+                FROM replies r
+                JOIN users u ON r.owner = u.id 
+                JOIN comments c ON r.comment_id = c.id
                 WHERE 
                     c.thread_id = $1
-                    AND c.comment_id IS NOT NULL
-                ORDER BY c.date ASC
+                ORDER BY r.date ASC
             `,
             values: [threadID],
         };
@@ -53,7 +52,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
     async checkReplyIsExist(replyID) {
         const query = {
-            text: 'SELECT * FROM comments WHERE id = $1',
+            text: 'SELECT * FROM replies WHERE id = $1',
             values: [replyID],
         };
 
@@ -66,7 +65,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
     async verifyReplyOwner(replyID, owner) {
         const query = {
-            text: 'SELECT * FROM comments WHERE id = $1',
+            text: 'SELECT * FROM replies WHERE id = $1',
             values: [replyID],
         };
 
@@ -83,7 +82,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
     async deleteReplyByID(replyID) {
         const query = {
-            text: 'UPDATE comments SET is_delete = true WHERE id = $1',
+            text: 'UPDATE replies SET is_delete = true WHERE id = $1',
             values: [replyID],
         };
 

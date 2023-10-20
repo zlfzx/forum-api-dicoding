@@ -26,7 +26,7 @@ exports.up = pgm => {
             default: false,
         },
         date: {
-            type: 'TEXT',
+            type: 'VARCHAR(50)',
             notNull: true,
         },
     });

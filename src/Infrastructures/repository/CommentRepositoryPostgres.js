@@ -21,7 +21,7 @@ class CommentRepositoryPostgres extends CommentRepository {
         };
 
         const { rows } = await this._pool.query(query);
-        return new AddedComment({ ...rows[0] });
+        return new AddedComment(rows[0]);
     }
 
     async checkCommentIsExist(id) {
@@ -88,9 +88,7 @@ class CommentRepositoryPostgres extends CommentRepository {
         };
 
         const { rows } = await this._pool.query(query);
-        return rows.map((comment) => new DetailComment({
-            ...comment,
-        }));
+        return rows.map((comment) => new DetailComment(comment));
     }
 }
 

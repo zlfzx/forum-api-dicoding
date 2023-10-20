@@ -21,7 +21,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
         };
 
         const { rows } = await this._pool.query(query);
-        return new AddedReply({ ...rows[0] });
+        return new AddedReply(rows[0]);
     }
 
     async getReplyCommentByThreadID(threadID) {
@@ -45,9 +45,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
         };
 
         const { rows } = await this._pool.query(query);
-        return rows.map((reply) => new DetailReply({
-            ...reply,
-        }));
+        return rows.map((reply) => new DetailReply(reply));
     }
 
     async checkReplyIsExist(replyID) {

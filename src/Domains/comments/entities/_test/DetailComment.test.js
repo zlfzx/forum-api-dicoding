@@ -20,6 +20,7 @@ describe('DetailComment entities', () => {
             date: {},
             content: {},
             is_delete: 'true',
+            likeCount: '0',
         };
 
         // Action and Assert
@@ -34,10 +35,11 @@ describe('DetailComment entities', () => {
             date: 'date',
             content: 'comment content',
             is_delete: false,
+            likeCount: 0,
         };
 
         // Action
-        const { id, username, date, content, is_delete } = new DetailComment(payload);
+        const { id, username, date, content, is_delete, likeCount } = new DetailComment(payload);
 
         // Assert
         expect(id).toEqual(payload.id);
@@ -45,5 +47,6 @@ describe('DetailComment entities', () => {
         expect(date).toEqual(payload.date);
         expect(content).toEqual(payload.content);
         expect(is_delete).toEqual(payload.is_delete);
+        expect(likeCount).toEqual(payload.likeCount);
     });
 });

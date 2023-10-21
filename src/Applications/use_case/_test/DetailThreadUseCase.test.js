@@ -1,5 +1,6 @@
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
 const DetailComment = require("../../../Domains/comments/entities/DetailComment");
+const LikeRepository = require("../../../Domains/likes/LikeRepository");
 const ReplyRepository = require("../../../Domains/replies/ReplyRepository");
 const DetailReply = require("../../../Domains/replies/entities/DetailReply");
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
@@ -29,6 +30,7 @@ describe('DetailThreadUseCase', () => {
                 date: 'date',
                 content: 'comment content',
                 is_delete: false,
+                likeCount: 0,
             }),
             new DetailComment({
                 id: 'comment-456',
@@ -36,21 +38,25 @@ describe('DetailThreadUseCase', () => {
                 date: 'date',
                 content: 'comment content',
                 is_delete: false,
+                likeCount: 0,
             }),
         ]
 
         const mockThreadRepository = new ThreadRepository();
         const mockCommentRepository = new CommentRepository();
         const mockReplyRepository = new ReplyRepository();
+        const mockLikeRepository = new LikeRepository();
 
         mockThreadRepository.getThreadByID = jest.fn(() => Promise.resolve(expectedDetailThread));
         mockCommentRepository.getCommentsByThreadID = jest.fn(() => Promise.resolve(expectedComments));
         mockReplyRepository.getReplyCommentByThreadID = jest.fn(() => Promise.resolve([]));
+        mockLikeRepository.getLikeCount = jest.fn(() => Promise.resolve(0));
 
         const detailThreadUseCase = new DetailThreadUseCase({
             threadRepository: mockThreadRepository,
             commentRepository: mockCommentRepository,
             replyRepository: mockReplyRepository,
+            likeRepository: mockLikeRepository,
         });
         
         detailThreadUseCase._filterCommentIsDeleted = jest.fn().mockImplementation(() => expectedComments)
@@ -78,6 +84,7 @@ describe('DetailThreadUseCase', () => {
                 date: 'date',
                 content: 'comment content',
                 is_delete: true,
+                likeCount: 0,
             }),
             new DetailComment({
                 id: 'comment-456',
@@ -86,6 +93,7 @@ describe('DetailThreadUseCase', () => {
                 date: 'date',
                 content: 'comment content',
                 is_delete: true,
+                likeCount: 0,
             }),
         ]
 
@@ -120,6 +128,7 @@ describe('DetailThreadUseCase', () => {
                 date: 'date',
                 content: 'comment content',
                 is_delete: false,
+                likeCount: 0,
             }),
             new DetailComment({
                 id: 'comment-456',
@@ -128,6 +137,7 @@ describe('DetailThreadUseCase', () => {
                 date: 'date',
                 content: 'comment content',
                 is_delete: false,
+                likeCount: 0,
             }),
         ]
 
@@ -158,6 +168,7 @@ describe('DetailThreadUseCase', () => {
                 date: 'date',
                 content: 'comment content',
                 is_delete: false,
+                likeCount: 0,
             }),
             new DetailComment({
                 id: 'comment-456',
@@ -166,6 +177,7 @@ describe('DetailThreadUseCase', () => {
                 date: 'date',
                 content: 'comment content',
                 is_delete: false,
+                likeCount: 0,
             }),
         ]
         const retrivedReplies = [
@@ -224,6 +236,7 @@ describe('DetailThreadUseCase', () => {
                 date: 'date',
                 content: 'comment content',
                 is_delete: false,
+                likeCount: 0,
             }),
             new DetailComment({
                 id: 'comment-456',
@@ -232,6 +245,7 @@ describe('DetailThreadUseCase', () => {
                 date: 'date',
                 content: 'comment content',
                 is_delete: false,
+                likeCount: 0,
             }),
         ]
         const retrivedReplies = [

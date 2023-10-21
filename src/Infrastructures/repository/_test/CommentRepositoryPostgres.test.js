@@ -285,6 +285,7 @@ describe('CommentRepositoryPostgres', () => {
                         date: '2023',
                         content: comment.content,
                         is_delete: false,
+                        likeCount: 0,
                     }),
                     new DetailComment({
                         id: comment2.id,
@@ -292,6 +293,7 @@ describe('CommentRepositoryPostgres', () => {
                         date: '2023',
                         content: comment2.content,
                         is_delete: false,
+                        likeCount: 0,
                     }),
                 ];
 
